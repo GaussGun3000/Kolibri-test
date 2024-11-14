@@ -98,7 +98,12 @@ void FileProcessor::applyBinaryOperation(const QString &inputFile, const QString
     if (inFile.open(QIODevice::ReadOnly) && outFile.open(QIODevice::WriteOnly))
     {
         Operation op = operationMap.value(operation);
-        int64_t operationValue64 = reinterpret_cast<int64_t>(operationValue.toStdString().data());
+        int64_t operationValue64 = 0;
+        if (operationValue.size() >= 8)
+            std::memcpy(&operationValue64, operationValue.data(), 8);
+        else
+            throw std::invalid_argument("operationValue must be at least 8 bytes.");
+
         int64_t inputValue;
         QDataStream inStream(&inFile);
         inStream.setByteOrder(QDataStream::LittleEndian);
